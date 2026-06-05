@@ -449,6 +449,188 @@
     }
   }
 
+  // ── Optimizer settings ────────────────────────────────────────────────────
+
+  const OPT_KEYS = ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'];
+  const MODE_LABELS = {
+    auto:'Auto-detect', coding:'Coding', business:'Startup',
+    research:'Research', writing:'Writing', student:'Student', goal:'Goal Expansion',
+  };
+  const LEVEL_LABELS = { light:'Light', standard:'Standard', expert:'Expert' };
+
+  const optHdr       = document.getElementById('opt-hdr');
+  const optChevron   = document.getElementById('opt-chevron');
+  const optBody      = document.getElementById('opt-body');
+  const optStatus    = document.getElementById('opt-hdr-status');
+  const optEnabled   = document.getElementById('opt-enabled');
+  const optLevelGrp  = document.getElementById('opt-level-group');
+  const optMode      = document.getElementById('opt-mode');
+  const optProfile   = document.getElementById('opt-profile');
+  const btnSaveProf  = document.getElementById('btn-save-profile');
+  const btnDelProf   = document.getElementById('btn-del-profile');
+  const optCustom    = document.getElementById('opt-custom');
+
+  let optOpen  = false;
+  let profiles = [];
+  let optSettings = { enabled: true, level: 'standard', mode: 'auto', custom: '' };
+
+  async function bootOptimizer() {
+    // Load stored settings
+    const stored = await new Promise(r =>
+      chrome.storage.local.get(OPT_KEYS, r)
+    );
+    optSettings = {
+      enabled: stored['__pv_optimizer_on'] !== false,
+      level:   stored['__pv_opt_level']  || 'standard',
+      mode:    stored['__pv_opt_mode']   || 'auto',
+      custom:  stored['__pv_opt_custom'] || '',
+    };
+
+    // Sync controls
+    optEnabled.checked = optSettings.enabled;
+    optMode.value      = optSettings.mode;
+    optCustom.value    = optSettings.custom;
+    setActiveSeg(optSettings.level);
+
+    // Load/seed profiles
+    const storedProfs = await new Promise(r =>
+      chrome.storage.local.get(['__pv_profiles','__pv_active_profile'], r)
+    );
+    profiles = storedProfs['__pv_profiles'] || [...Optimizer.DEFAULT_PROFILES];
+    if (!storedProfs['__pv_profiles']) {
+      await saveProfiles(profiles);
+    }
+    renderProfileSelect(storedProfs['__pv_active_profile'] || '');
+    updateOptStatus();
+  }
+
+  // Expand/collapse panel
+  optHdr.addEventListener('click', () => {
+    optOpen = !optOpen;
+    optBody.classList.toggle('open', optOpen);
+    optChevron.classList.toggle('open', optOpen);
+  });
+
+  // Enabled toggle
+  optEnabled.addEventListener('change', () => {
+    optSettings.enabled = optEnabled.checked;
+    saveOptSetting('__pv_optimizer_on', optSettings.enabled);
+    updateOptStatus();
+  });
+
+  // Level seg-buttons
+  optLevelGrp.addEventListener('click', (e) => {
+    const btn = e.target.closest('.seg');
+    if (!btn) return;
+    optSettings.level = btn.dataset.v;
+    setActiveSeg(optSettings.level);
+    saveOptSetting('__pv_opt_level', optSettings.level);
+    updateOptStatus();
+  });
+
+  // Mode select
+  optMode.addEventListener('change', () => {
+    optSettings.mode = optMode.value;
+    saveOptSetting('__pv_opt_mode', optSettings.mode);
+    updateOptStatus();
+  });
+
+  // Custom instructions (debounced save)
+  let customTimer = null;
+  optCustom.addEventListener('input', () => {
+    clearTimeout(customTimer);
+    customTimer = setTimeout(() => {
+      optSettings.custom = optCustom.value.trim();
+      saveOptSetting('__pv_opt_custom', optSettings.custom);
+    }, 400);
+  });
+
+  // Profile select — apply the chosen profile
+  optProfile.addEventListener('change', async () => {
+    const id = optProfile.value;
+    if (!id) return;
+    const p = profiles.find(x => x.id === id);
+    if (!p) return;
+    optSettings.level  = p.level;
+    optSettings.mode   = p.mode;
+    optSettings.custom = p.customInstructions || '';
+    optMode.value      = optSettings.mode;
+    optCustom.value    = optSettings.custom;
+    setActiveSeg(optSettings.level);
+    chrome.storage.local.set({
+      '__pv_opt_level':  optSettings.level,
+      '__pv_opt_mode':   optSettings.mode,
+      '__pv_opt_custom': optSettings.custom,
+      '__pv_active_profile': id,
+    });
+    updateOptStatus();
+  });
+
+  // Save current settings as a new profile
+  btnSaveProf.addEventListener('click', async () => {
+    const name = prompt('Profile name:');
+    if (!name || !name.trim()) return;
+    const newProfile = {
+      id: 'profile-' + Date.now(),
+      name: name.trim(),
+      mode:  optSettings.mode,
+      level: optSettings.level,
+      customInstructions: optSettings.custom,
+    };
+    profiles.push(newProfile);
+    await saveProfiles(profiles);
+    renderProfileSelect(newProfile.id);
+    showToast(`Profile "${newProfile.name}" saved.`, 'ok');
+  });
+
+  // Delete selected profile (default profiles are undeletable)
+  btnDelProf.addEventListener('click', async () => {
+    const id = optProfile.value;
+    if (!id) return;
+    if (Optimizer.DEFAULT_PROFILE_IDS.has(id)) {
+      showToast('Default profiles cannot be deleted.'); return;
+    }
+    const p = profiles.find(x => x.id === id);
+    if (!p) return;
+    profiles = profiles.filter(x => x.id !== id);
+    await saveProfiles(profiles);
+    renderProfileSelect('');
+    showToast(`Profile "${p.name}" deleted.`);
+  });
+
+  function setActiveSeg(level) {
+    optLevelGrp.querySelectorAll('.seg').forEach(b => {
+      b.classList.toggle('active', b.dataset.v === level);
+    });
+  }
+
+  function renderProfileSelect(activeId) {
+    optProfile.innerHTML = '<option value="">— no profile —</option>';
+    for (const p of profiles) {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.name + (Optimizer.DEFAULT_PROFILE_IDS.has(p.id) ? '' : ' ✎');
+      if (p.id === activeId) opt.selected = true;
+      optProfile.appendChild(opt);
+    }
+  }
+
+  function updateOptStatus() {
+    const lvl  = LEVEL_LABELS[optSettings.level] || optSettings.level;
+    const mode = MODE_LABELS[optSettings.mode]   || optSettings.mode;
+    optStatus.textContent = optSettings.enabled ? `${lvl} · ${mode}` : 'Off';
+  }
+
+  function saveOptSetting(key, value) {
+    chrome.storage.local.set({ [key]: value });
+  }
+
+  async function saveProfiles(ps) {
+    return new Promise(r => chrome.storage.local.set({ '__pv_profiles': ps }, r));
+  }
+
+  bootOptimizer();
+
   // ── Toast ──────────────────────────────────────────────────────────────────
   function showToast(msg, type = '') {
     const t = document.createElement('div');

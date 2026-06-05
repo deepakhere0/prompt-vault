@@ -83,26 +83,44 @@ Write a blog post about [Topic] in a [Tone] voice.
 
 A ✨ button appears below the ⚡ launcher on all supported sites.
 
-**How it works (Mode A — no API key needed):**
+**How it works (Mode A — no API key, no network):**
 1. Type a messy, vague, or non-English request into the chat box
-2. Click ✨ — the extension wraps your text in a two-stage meta-prompt and replaces the input
-3. Press Enter — the AI runs both stages and returns the two-section response
-
-**The model runs two stages in one turn:**
-- **Stage 1 (Prompt Engineer):** Infers your true goal, assigns a qualified expert persona, and constructs a high-end English prompt with explicit role, objective, context, constraints, and a demand for depth (examples, trade-offs, edge cases, actionable detail)
-- **Stage 2 (Domain Expert):** Adopts that persona and answers at the highest quality it can — comprehensive, specific, with nuances and adjacent insights you didn't think to ask for
+2. Click ✨ — the extension assembles and injects a structured meta-prompt
+3. Press Enter — the AI returns the two-section response
 
 **Output format — always two sections:**
 
 ```
-🔧 Optimized Prompt
-<the high-end English prompt>
-
-📘 In-Depth Answer
-<the comprehensive expert answer>
+🔧 Optimized Prompt   ← always in English
+📘 In-Depth Answer    ← matches your input language by default
 ```
 
-**Language behaviour:** The `🔧 Optimized Prompt` is always in English. The `📘 In-Depth Answer` is written in the **same language as your request** — so a Hindi request gets a Hindi in-depth answer. To change this, edit the one marked line in `lib/optimizer.js`.
+**Modes** — controls which expert persona is applied:
+
+| Mode | Persona |
+|---|---|
+| Auto-detect | Keyword classifier picks the best match from the list below |
+| Coding | Principal software architect |
+| Startup | Startup advisor & business strategist |
+| Research | Research expert & analyst |
+| Writing | Copywriter & editor |
+| Student | Expert teacher |
+| **Goal Expansion** | Strategic planning expert — turns vague goals into a concrete plan (objective, skills, timeline, risks, first actions) |
+
+**Levels** — controls optimization strength:
+- **Light** — minimal clean-up, stays close to your wording
+- **Standard** — rewrites with explicit role, context, and output format
+- **Expert** — maximally rigorous: expert role, full context expansion, assumptions, constraints, edge cases, depth directives
+
+**Profiles** — named presets that set mode + level + custom instructions at once. Three defaults: Developer (Coding/Expert), Founder (Startup/Expert), Student (Student/Standard). Add your own with the ＋ button.
+
+**Custom instructions** — appended verbatim to every optimized prompt (e.g. "Always use British English, prefer bullet points").
+
+**In-page mode badge** — the badge next to ✨ shows the active mode. Click it to override for a single request without changing your saved settings. Auto mode shows the detected intent as you type (e.g. "Auto › Coding").
+
+**Language behaviour:** `📘 In-Depth Answer` matches the user's input language. To force English for both sections, edit the marked line in `lib/optimizer.js`.
+
+> *Extension-rendered before/after diff with a copy button requires holding the optimized prompt as data, which needs a provider API (BYOK). This is planned — `lib/optimizer.js` already has the Mode B seam documented.*
 
 **Save the result:** Select the `🔧 Optimized Prompt` block → right-click → **Save selection to Prompt Vault** → assign a shortcut. That's the optimize → vault loop: clean a rough idea once, reuse the polished version as a shortcut forever.
 

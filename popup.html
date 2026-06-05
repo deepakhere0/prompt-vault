@@ -27,6 +27,54 @@
       <!-- Prompt cards rendered by popup.js -->
     </div>
 
+    <!-- Optimizer settings (collapsible) -->
+    <div class="opt-panel" id="opt-panel">
+      <button class="opt-hdr" id="opt-hdr" type="button">
+        <span class="opt-hdr-label">Optimizer ✨</span>
+        <span class="opt-hdr-status" id="opt-hdr-status">Standard · Auto-detect</span>
+        <span class="opt-hdr-chevron" id="opt-chevron">›</span>
+      </button>
+      <div class="opt-body" id="opt-body">
+        <div class="opt-row">
+          <span class="opt-lbl">Enabled</span>
+          <input type="checkbox" id="opt-enabled" class="toggle" checked />
+        </div>
+        <div class="opt-row">
+          <span class="opt-lbl">Level</span>
+          <div class="seg-group" id="opt-level-group">
+            <button class="seg" data-v="light" type="button">Light</button>
+            <button class="seg" data-v="standard" type="button">Standard</button>
+            <button class="seg" data-v="expert" type="button">Expert</button>
+          </div>
+        </div>
+        <div class="opt-row">
+          <span class="opt-lbl">Mode</span>
+          <select id="opt-mode" class="opt-sel">
+            <option value="auto">Auto-detect</option>
+            <option value="coding">Coding</option>
+            <option value="business">Startup</option>
+            <option value="research">Research</option>
+            <option value="writing">Writing</option>
+            <option value="student">Student</option>
+            <option value="goal">Goal Expansion</option>
+          </select>
+        </div>
+        <div class="opt-row">
+          <span class="opt-lbl">Profile</span>
+          <div class="opt-flex">
+            <select id="opt-profile" class="opt-sel" style="flex:1"></select>
+            <button class="btn-icon save-btn" id="btn-save-profile" title="Save current settings as new profile">＋</button>
+            <button class="btn-icon danger"   id="btn-del-profile"  title="Delete selected profile">×</button>
+          </div>
+        </div>
+        <div class="opt-row opt-col">
+          <span class="opt-lbl">Custom</span>
+          <textarea id="opt-custom" class="opt-textarea" rows="2"
+            placeholder="e.g. Always use British English, prefer bullet points"></textarea>
+        </div>
+      </div>
+    </div>
+
     <div class="settings-bar">
       <label class="setting-row" title="Automatically send the chat after optimizing">
         <span>Auto-send after Optimize ✨</span>
@@ -63,6 +111,7 @@
   <input type="file" id="import-file" accept=".json" style="display:none" />
 
   <script src="lib/storage.js"></script>
+  <script src="lib/optimizer.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

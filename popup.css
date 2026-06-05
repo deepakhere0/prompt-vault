@@ -258,6 +258,77 @@ body {
 .btn-icon:hover { border-color: var(--border); color: var(--text); }
 .btn-icon.danger:hover { border-color: var(--danger); color: var(--danger); }
 
+/* ── Optimizer panel ── */
+.opt-panel { border-top: 1px solid var(--border); flex-shrink: 0; }
+
+.opt-hdr {
+  width: 100%; background: none; border: none;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; cursor: pointer; text-align: left;
+}
+.opt-hdr:hover { background: var(--surface); }
+
+.opt-hdr-label {
+  font-family: var(--font-head); font-weight: 600;
+  font-size: 0.8rem; color: var(--text);
+}
+.opt-hdr-status { font-size: 0.71rem; color: var(--text-muted); flex: 1; }
+.opt-hdr-chevron {
+  font-size: 0.75rem; color: var(--text-muted);
+  transition: transform 150ms; display: inline-block;
+}
+.opt-hdr-chevron.open { transform: rotate(90deg); }
+
+.opt-body {
+  max-height: 0; overflow: hidden;
+  padding: 0 16px;
+  transition: max-height 200ms ease, padding 150ms ease;
+}
+.opt-body.open { max-height: 260px; padding: 6px 16px 12px; }
+
+.opt-row {
+  display: flex; align-items: center;
+  gap: 8px; margin-bottom: 6px;
+}
+.opt-col { flex-direction: column; align-items: flex-start; gap: 4px; }
+
+.opt-lbl {
+  font-size: 0.74rem; color: var(--text-muted);
+  width: 52px; flex-shrink: 0;
+}
+.opt-flex { display: flex; align-items: center; gap: 4px; flex: 1; }
+
+.seg-group { display: flex; gap: 3px; flex: 1; }
+.seg {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text-muted); font-size: 0.74rem;
+  font-family: var(--font-body); padding: 4px 0;
+  cursor: pointer; transition: all var(--trans);
+}
+.seg:hover { border-color: var(--accent-dim); color: var(--text); }
+.seg.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+
+.opt-sel {
+  flex: 1; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 0.78rem;
+  font-family: var(--font-body); padding: 5px 8px;
+  outline: none; cursor: pointer;
+}
+.opt-sel:focus { border-color: var(--accent-dim); }
+
+.opt-textarea {
+  width: 100%; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-family: var(--font-body);
+  font-size: 0.78rem; padding: 6px 8px;
+  outline: none; resize: vertical; min-height: 42px;
+  transition: border-color var(--trans);
+}
+.opt-textarea:focus  { border-color: var(--accent-dim); }
+.opt-textarea::placeholder { color: var(--text-muted); }
+
 /* ── Settings bar ── */
 .settings-bar {
   padding: 8px 16px;

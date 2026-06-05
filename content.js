@@ -19,6 +19,16 @@
   let pvBtnEl         = null;
   let pvOptBtnEl      = null;
   let pvPanelEl       = null;
+  let pvBadgeEl       = null;
+  let pvBadgeDropEl   = null;
+  let badgeModeOvr    = null;   // per-session mode override (null = use stored setting)
+  let badgeDetected   = null;   // last auto-detected intent
+
+  const MODE_LABELS_CE = {
+    auto:'Auto', coding:'Coding', business:'Startup',
+    research:'Research', writing:'Writing', student:'Student', goal:'Goal', general:'General',
+  };
+
   let panelOpen       = false;
   let panelCategory   = 'All';
   let panelSource     = 'All'; // 'All' | 'Mine' | 'Lib'
@@ -482,6 +492,32 @@
     }
     .item-save:hover { border-color:#7cf7d4; background:#1a3a31; }
     .panel-overflow { text-align:center; color:#7878a0; font-size:0.7rem; padding:6px 12px; }
+
+    .mode-badge {
+      position:absolute; right:68px;
+      background:#1c1c24; border:1px solid #2e2e3a; border-radius:6px;
+      padding:3px 8px; font-size:0.63rem; color:#7878a0;
+      cursor:pointer; white-space:nowrap; pointer-events:all;
+      display:flex; align-items:center; gap:4px;
+      font-family:system-ui,-apple-system,sans-serif;
+      transition:border-color 150ms,color 150ms; user-select:none;
+    }
+    .mode-badge:hover { border-color:#3a7a67; color:#e8e8f0; }
+    .mode-badge.pinned { border-color:#7cf7d4; color:#7cf7d4; }
+
+    .mode-drop {
+      position:absolute; right:68px;
+      background:#1c1c24; border:1px solid #2e2e3a; border-radius:8px;
+      overflow:hidden; z-index:3; pointer-events:all;
+      box-shadow:0 4px 20px rgba(0,0,0,0.55);
+      font-family:system-ui,-apple-system,sans-serif;
+    }
+    .mopt {
+      padding:7px 14px; font-size:0.78rem; color:#e8e8f0;
+      cursor:pointer; white-space:nowrap; transition:background 100ms;
+    }
+    .mopt:hover { background:#25252f; }
+    .mopt.active { color:#7cf7d4; }
   `;
 
   function escHtml(s) {
@@ -548,6 +584,33 @@
     pvBtnEl.addEventListener('click', onBtnClick);
     pvBtnEl.addEventListener('mousedown', onDragStart);
     pvOptBtnEl.addEventListener('click', onOptimizeClick);
+
+    // Mode badge — shows effective mode; click to override for this session.
+    pvBadgeEl = document.createElement('div');
+    pvBadgeEl.className = 'mode-badge';
+    pvShadow.appendChild(pvBadgeEl);
+    pvBadgeEl.addEventListener('click', openBadgeDrop);
+
+    // Initialise badge based on stored settings.
+    loadOptimizerSettings().then(s => {
+      if (!s.enabled) {
+        pvOptBtnEl.style.display = 'none';
+        pvBadgeEl.style.display  = 'none';
+      }
+      renderBadge(s.mode);
+    });
+
+    // React to popup setting changes without reloading the page.
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'local') return;
+      const relevant = ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'];
+      if (!relevant.some(k => k in changes)) return;
+      loadOptimizerSettings().then(s => {
+        if (pvOptBtnEl) pvOptBtnEl.style.display = s.enabled ? 'flex' : 'none';
+        if (pvBadgeEl)  pvBadgeEl.style.display  = s.enabled ? 'flex' : 'none';
+        if (s.enabled)  renderBadge(badgeModeOvr || s.mode);
+      });
+    });
     pvShadow.getElementById('pv-search').addEventListener('input', refreshList);
     document.addEventListener('mousedown', onOutsideMousedown, true);
     pvShadow.addEventListener('keydown', (e) => {
@@ -561,6 +624,7 @@
     const top = clampTop(Math.round((pct / 100) * window.innerHeight));
     pvBtnEl.style.top    = top + 'px';
     if (pvOptBtnEl) pvOptBtnEl.style.top = (top + 50) + 'px'; // 44px + 6px gap
+    if (pvBadgeEl)  pvBadgeEl.style.top  = (top + 62) + 'px'; // vertically centred on ✨
     repositionPanel();
   }
 
@@ -606,6 +670,7 @@
     const newTop = clampTop(dragState.startTop + dy);
     pvBtnEl.style.top    = newTop + 'px';
     if (pvOptBtnEl) pvOptBtnEl.style.top = (newTop + 50) + 'px';
+    if (pvBadgeEl)  pvBadgeEl.style.top  = (newTop + 62) + 'px';
     repositionPanel();
   }
 
@@ -628,6 +693,8 @@
     panelOpen = true;
     panelCategory = 'All';
     panelSource   = 'All';
+    if (pvBadgeEl)  pvBadgeEl.style.visibility  = 'hidden';
+    if (pvBadgeDropEl) { pvBadgeDropEl.remove(); pvBadgeDropEl = null; }
     pvPanelEl.classList.remove('hidden');
     repositionPanel();
     pvShadow.getElementById('pv-search').value = '';
@@ -638,6 +705,7 @@
   function closePanel() {
     panelOpen = false;
     pvPanelEl.classList.add('hidden');
+    if (pvBadgeEl) pvBadgeEl.style.visibility = '';
   }
 
   function onOutsideMousedown(e) {
@@ -884,6 +952,79 @@
     }, 2400);
   }
 
+  // ── Optimizer helpers ─────────────────────────────────────────────────────
+
+  function loadOptimizerSettings() {
+    return new Promise(resolve => {
+      chrome.storage.local.get(
+        ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'],
+        r => resolve({
+          enabled:            r['__pv_optimizer_on'] !== false,
+          level:              r['__pv_opt_level']  || 'standard',
+          mode:               r['__pv_opt_mode']   || 'auto',
+          customInstructions: r['__pv_opt_custom'] || '',
+        })
+      );
+    });
+  }
+
+  function renderBadge(effectiveMode) {
+    if (!pvBadgeEl) return;
+    const isOverride = !!badgeModeOvr;
+    let label = MODE_LABELS_CE[effectiveMode] || effectiveMode;
+    if (!isOverride && effectiveMode === 'auto' && badgeDetected) {
+      label = `Auto › ${MODE_LABELS_CE[badgeDetected] || badgeDetected}`;
+    }
+    pvBadgeEl.className = 'mode-badge' + (isOverride ? ' pinned' : '');
+    pvBadgeEl.innerHTML = `${label} <span style="font-size:0.5rem;opacity:.7">▾</span>`;
+  }
+
+  function openBadgeDrop() {
+    if (pvBadgeDropEl) { pvBadgeDropEl.remove(); pvBadgeDropEl = null; return; }
+    loadOptimizerSettings().then(s => {
+      const storedMode    = s.mode;
+      const effectiveMode = badgeModeOvr || storedMode;
+
+      const drop = document.createElement('div');
+      drop.className = 'mode-drop';
+
+      const badgeTop = parseInt(pvBadgeEl.style.top || '200', 10);
+      const opts     = [
+        { v: null,       label: 'Auto-detect (stored)' },
+        { v: 'coding',   label: 'Coding'               },
+        { v: 'business', label: 'Startup'               },
+        { v: 'research', label: 'Research'              },
+        { v: 'writing',  label: 'Writing'               },
+        { v: 'student',  label: 'Student'               },
+        { v: 'goal',     label: 'Goal Expansion'        },
+      ];
+      const dropH = opts.length * 34;
+      drop.style.top   = Math.max(8, badgeTop - dropH) + 'px';
+
+      for (const o of opts) {
+        const row = document.createElement('div');
+        row.className = 'mopt' + (o.v === effectiveMode || (!o.v && !badgeModeOvr) ? ' active' : '');
+        row.textContent = o.label;
+        row.addEventListener('click', () => {
+          badgeModeOvr = o.v;
+          renderBadge(badgeModeOvr || storedMode);
+          drop.remove(); pvBadgeDropEl = null;
+        });
+        drop.appendChild(row);
+      }
+
+      pvShadow.appendChild(drop);
+      pvBadgeDropEl = drop;
+
+      document.addEventListener('mousedown', function dismissDrop(e) {
+        if (!e.composedPath().some(n => n === drop || n === pvBadgeEl)) {
+          drop.remove(); pvBadgeDropEl = null;
+          document.removeEventListener('mousedown', dismissDrop, true);
+        }
+      }, true);
+    });
+  }
+
   async function onOptimizeClick() {
     const el = lastActiveInput || findChatInput();
     if (!el) { showPvToast('Click the chat input first.', 'warn'); return; }
@@ -891,17 +1032,28 @@
     const raw = readCurrentInput(el).trim();
     if (!raw) { showPvToast('Type something to optimize first.', 'warn'); return; }
 
-    // Double-wrap guard — the meta-prompt's first line is unique enough.
-    if (raw.startsWith(Optimizer.META_PROMPT.split('\n')[0])) {
+    // Double-wrap guard — check against every persona opening line.
+    if (Object.values(Optimizer.PERSONAS).some(p => raw.startsWith(p))) {
       showPvToast('Already optimized.', 'warn');
       return;
     }
 
-    const { payload } = await Optimizer.optimize(raw);
+    const s    = await loadOptimizerSettings();
+    const mode = badgeModeOvr || s.mode;
+
+    const { payload, detectedIntent } = await Optimizer.optimize(raw, {
+      mode,
+      level:              s.level,
+      customInstructions: s.customInstructions,
+    });
+
+    // Update badge to show what was used / detected.
+    badgeDetected = detectedIntent;
+    renderBadge(mode);
+
     replaceAllContent(el, payload);
 
-    // Honour the "Auto-send after optimize" popup toggle.
-    chrome.storage.local.get(['__pv_autosend'], (r) => {
+    chrome.storage.local.get(['__pv_autosend'], r => {
       if (r['__pv_autosend']) autoSendInput(el);
     });
   }
@@ -930,13 +1082,33 @@
     const obs = new MutationObserver(() => {
       if (!document.getElementById(PV_HOST_ID)) {
         // Our element was removed by a SPA navigation — re-mount.
-        pvShadow = pvBtnEl = pvOptBtnEl = pvPanelEl = null;
+        pvShadow = pvBtnEl = pvOptBtnEl = pvBadgeEl = pvPanelEl = null;
         panelOpen = false;
         initFloatingUI();
       }
     });
     obs.observe(document.body, { childList: true });
   }
+
+  // ── Auto-detect badge update on typing ────────────────────────────────────
+  // Debounced: re-runs the local classifier when the user pauses typing so the
+  // badge reflects the current input without blocking the keydown path.
+  let detectTypingTimer = null;
+  document.addEventListener('input', (e) => {
+    if (!isTextareaEl(e.target) && !isContentEditableEl(e.target)) return;
+    if (isOurElement(e.target)) return;
+    clearTimeout(detectTypingTimer);
+    detectTypingTimer = setTimeout(() => {
+      const text = isTextareaEl(e.target) ? e.target.value : (e.target.innerText || '');
+      if (!text.trim()) return;
+      loadOptimizerSettings().then(s => {
+        if (s.mode === 'auto' && !badgeModeOvr) {
+          badgeDetected = Optimizer.detectIntent(text);
+          renderBadge('auto');
+        }
+      });
+    }, 400);
+  }, true);
 
   // ── Boot ──────────────────────────────────────────────────────────────────
 
