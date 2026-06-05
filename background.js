@@ -67,6 +67,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   });
 });
 
+// Keep content-script keep-alive ports open so onDisconnect only fires on true
+// context invalidation, not on a normal service-worker restart.
+chrome.runtime.onConnect.addListener((port) => {
+  port.onDisconnect.addListener(() => {});
+});
+
 // Re-register context menu on startup (service workers can be killed and restarted).
 chrome.runtime.onStartup.addListener(() => {
   chrome.contextMenus.removeAll(() => {

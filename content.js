@@ -24,6 +24,32 @@
   let badgeModeOvr    = null;   // per-session mode override (null = use stored setting)
   let badgeDetected   = null;   // last auto-detected intent
 
+  function isAlive() { try { return !!chrome.runtime?.id; } catch { return false; } }
+
+  function pvTeardown() {
+    const host = document.getElementById(PV_HOST_ID);
+    if (host) host.remove();
+    pvShadow = pvBtnEl = pvOptBtnEl = pvPanelEl = pvBadgeEl = null;
+    panelOpen = false;
+  }
+
+  // Establishes a long-lived port to the service worker.  When the port
+  // disconnects AND the context is truly dead, we tear down the orphaned UI.
+  // If the SW merely restarted (context still alive) we reconnect instead.
+  function connectKeepAlive() {
+    if (!isAlive()) return;
+    let port;
+    try { port = chrome.runtime.connect({ name: 'pv-keepalive' }); } catch { return; }
+    port.onDisconnect.addListener(() => {
+      if (!isAlive()) {
+        pvTeardown();
+      } else {
+        // SW restarted but content-script context is healthy — re-establish port.
+        setTimeout(connectKeepAlive, 250);
+      }
+    });
+  }
+
   const MODE_LABELS_CE = {
     auto:'Auto', coding:'Coding', business:'Startup',
     research:'Research', writing:'Writing', student:'Student', goal:'Goal', general:'General',
@@ -307,6 +333,8 @@
     // If no shortcut matches, we restore the trigger character manually.
     e.preventDefault();
 
+    if (!isAlive()) return;
+
     const prompts = await Storage.getAll();
 
     // Guard: element may have been removed during the async storage read.
@@ -528,8 +556,13 @@
 
   // ── Build & mount ─────────────────────────────────────────────────────────
 
+  let initInProgress = false;
+
   async function initFloatingUI() {
     if (document.getElementById(PV_HOST_ID)) return;
+    if (initInProgress) return;
+    initInProgress = true;
+    try {
 
     const savedPct = await getSavedBtnYPct();
 
@@ -598,10 +631,11 @@
         pvBadgeEl.style.display  = 'none';
       }
       renderBadge(s.mode);
-    });
+    }).catch(() => {});
 
     // React to popup setting changes without reloading the page.
     chrome.storage.onChanged.addListener((changes, area) => {
+      if (!isAlive()) return;
       if (area !== 'local') return;
       const relevant = ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'];
       if (!relevant.some(k => k in changes)) return;
@@ -609,13 +643,15 @@
         if (pvOptBtnEl) pvOptBtnEl.style.display = s.enabled ? 'flex' : 'none';
         if (pvBadgeEl)  pvBadgeEl.style.display  = s.enabled ? 'flex' : 'none';
         if (s.enabled)  renderBadge(badgeModeOvr || s.mode);
-      });
+      }).catch(() => {});
     });
-    pvShadow.getElementById('pv-search').addEventListener('input', refreshList);
+    pvShadow.getElementById('pv-search').addEventListener('input', () => refreshList().catch(() => {}));
     document.addEventListener('mousedown', onOutsideMousedown, true);
     pvShadow.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') { e.stopPropagation(); closePanel(); }
     });
+
+    } finally { initInProgress = false; }
   }
 
   // ── Button position helpers ───────────────────────────────────────────────
@@ -646,8 +682,9 @@
   // ── Drag ──────────────────────────────────────────────────────────────────
 
   function onBtnClick() {
+    if (!isAlive()) return;
     if (dragState && dragState.moved) return;
-    panelOpen ? closePanel() : openPanel();
+    panelOpen ? closePanel() : openPanel().catch(() => {});
   }
 
   function onDragStart(e) {
@@ -690,6 +727,7 @@
   // ── Panel open / close ────────────────────────────────────────────────────
 
   async function openPanel() {
+    if (!isAlive()) return;
     panelOpen = true;
     panelCategory = 'All';
     panelSource   = 'All';
@@ -717,6 +755,7 @@
   // ── Panel rendering ───────────────────────────────────────────────────────
 
   async function renderPanelContents() {
+    if (!isAlive()) return;
     const [personal, library] = await Promise.all([
       Storage.getAll(),
       Storage.getLibrary(),
@@ -765,6 +804,7 @@
   }
 
   async function refreshList() {
+    if (!isAlive()) return;
     const [personal, library] = await Promise.all([Storage.getAll(), Storage.getLibrary()]);
     panelLibrary = library;
     renderItems(personal, library);
@@ -877,18 +917,17 @@
 
   // ── Position persistence ──────────────────────────────────────────────────
 
-  function getSavedBtnYPct() {
-    return new Promise((resolve) => {
-      try {
-        chrome.storage.local.get([BTN_Y_STORE_KEY], (r) => {
-          resolve(typeof r[BTN_Y_STORE_KEY] === 'number' ? r[BTN_Y_STORE_KEY] : DEFAULT_Y_PCT);
-        });
-      } catch { resolve(DEFAULT_Y_PCT); }
-    });
+  async function getSavedBtnYPct() {
+    if (!isAlive()) return DEFAULT_Y_PCT;
+    try {
+      const r = await chrome.storage.local.get([BTN_Y_STORE_KEY]);
+      return typeof r[BTN_Y_STORE_KEY] === 'number' ? r[BTN_Y_STORE_KEY] : DEFAULT_Y_PCT;
+    } catch { return DEFAULT_Y_PCT; }
   }
 
   function saveBtnYPct(pct) {
-    try { chrome.storage.local.set({ [BTN_Y_STORE_KEY]: pct }); } catch {}
+    if (!isAlive()) return;
+    try { chrome.storage.local.set({ [BTN_Y_STORE_KEY]: pct }).catch(() => {}); } catch {}
   }
 
   // ── Prompt Optimizer ─────────────────────────────────────────────────────
@@ -958,21 +997,20 @@
 
   // ── Optimizer helpers ─────────────────────────────────────────────────────
 
-  function loadOptimizerSettings() {
+  async function loadOptimizerSettings() {
     const defaults = { enabled: true, level: 'standard', mode: 'auto', customInstructions: '' };
-    return new Promise(resolve => {
-      try {
-        chrome.storage.local.get(
-          ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'],
-          r => resolve({
-            enabled:            r['__pv_optimizer_on'] !== false,
-            level:              r['__pv_opt_level']  || 'standard',
-            mode:               r['__pv_opt_mode']   || 'auto',
-            customInstructions: r['__pv_opt_custom'] || '',
-          })
-        );
-      } catch { resolve(defaults); }  // extension context invalidated — use safe defaults
-    });
+    if (!isAlive()) return defaults;
+    try {
+      const r = await chrome.storage.local.get(
+        ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom']
+      );
+      return {
+        enabled:            r['__pv_optimizer_on'] !== false,
+        level:              r['__pv_opt_level']  || 'standard',
+        mode:               r['__pv_opt_mode']   || 'auto',
+        customInstructions: r['__pv_opt_custom'] || '',
+      };
+    } catch { return defaults; }
   }
 
   function renderBadge(effectiveMode) {
@@ -991,6 +1029,7 @@
     loadOptimizerSettings().then(s => {
       const storedMode    = s.mode;
       const effectiveMode = badgeModeOvr || storedMode;
+
 
       const drop = document.createElement('div');
       drop.className = 'mode-drop';
@@ -1029,12 +1068,12 @@
           document.removeEventListener('mousedown', dismissDrop, true);
         }
       }, true);
-    });
+    }).catch(() => {});
   }
 
   async function onOptimizeClick() {
-    try { if (!chrome.runtime?.id) throw new Error('invalidated'); } catch {
-      showPvToast('Reload the page — extension was updated.', 'warn'); return;
+    if (!isAlive()) {
+      showPvToast('Prompt Vault was updated — please refresh this page.', 'warn'); return;
     }
 
     const el = lastActiveInput || findChatInput();
@@ -1064,11 +1103,11 @@
 
     replaceAllContent(el, payload);
 
-    try {
-      chrome.storage.local.get(['__pv_autosend'], r => {
+    if (isAlive()) {
+      chrome.storage.local.get(['__pv_autosend']).then(r => {
         if (r['__pv_autosend']) autoSendInput(el);
-      });
-    } catch {}
+      }).catch(() => {});
+    }
   }
 
   // ── Message listener (popup-initiated insert) ─────────────────────────────
@@ -1094,10 +1133,11 @@
   function startObserver() {
     const obs = new MutationObserver(() => {
       if (!document.getElementById(PV_HOST_ID)) {
+        if (!isAlive()) return;
         // Our element was removed by a SPA navigation — re-mount.
         pvShadow = pvBtnEl = pvOptBtnEl = pvBadgeEl = pvPanelEl = null;
         panelOpen = false;
-        initFloatingUI();
+        initFloatingUI().then(connectKeepAlive).catch(() => {});
       }
     });
     obs.observe(document.body, { childList: true });
@@ -1112,6 +1152,7 @@
     if (isOurElement(e.target)) return;
     clearTimeout(detectTypingTimer);
     detectTypingTimer = setTimeout(() => {
+      if (!isAlive()) return;
       const text = isTextareaEl(e.target) ? e.target.value : (e.target.innerText || '');
       if (!text.trim()) return;
       loadOptimizerSettings().then(s => {
@@ -1119,18 +1160,18 @@
           badgeDetected = Optimizer.detectIntent(text);
           renderBadge('auto');
         }
-      });
+      }).catch(() => {});
     }, 400);
   }, true);
 
   // ── Boot ──────────────────────────────────────────────────────────────────
 
   if (document.body) {
-    initFloatingUI();
+    initFloatingUI().then(connectKeepAlive).catch(() => {});
     startObserver();
   } else {
     document.addEventListener('DOMContentLoaded', () => {
-      initFloatingUI();
+      initFloatingUI().then(connectKeepAlive).catch(() => {});
       startObserver();
     });
   }

@@ -316,6 +316,12 @@
   }
 
   // ── Insert from popup via content-script message ───────────────────────────
+
+  const SUPPORTED_HOSTS = [
+    'chatgpt.com', 'chat.openai.com', 'claude.ai',
+    'gemini.google.com', 'perplexity.ai',
+  ];
+
   async function insertFromPopup(body) {
     let tab;
     try {
@@ -324,12 +330,18 @@
       showToast('Cannot access the active tab.', 'error'); return;
     }
     if (!tab) { showToast('No active tab.', 'error'); return; }
+
+    const url = tab.url || '';
+    if (!SUPPORTED_HOSTS.some(h => url.includes(h))) {
+      showToast('Open a supported AI chat site first.', 'error'); return;
+    }
+
     try {
       const res = await chrome.tabs.sendMessage(tab.id, { type: 'PV_INSERT', body });
       if (res?.ok) window.close();
-      else showToast('Open a supported AI chat site first.', 'error');
+      else showToast('Refresh the page, then try again.', 'error');
     } catch {
-      showToast('Open a supported AI chat site first.', 'error');
+      showToast('Refresh the page, then try again.', 'error');
     }
   }
 
