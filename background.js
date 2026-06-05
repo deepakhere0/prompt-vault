@@ -1,7 +1,7 @@
 // background.js — service worker
 // Handles: first-install seed, library seed, context-menu "Save selection", badge feedback.
 
-const LIBRARY_VERSION = 1; // bump when prompt-library.json is updated
+const LIBRARY_VERSION = 2; // bump when prompt-library.json is updated
 
 const SEED_PROMPTS = [
   {
