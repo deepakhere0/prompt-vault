@@ -2,6 +2,13 @@
 
 Turn saved prompts into typed shortcuts inside AI chat sites. Type `/seo` and the full prompt lands in the chat box — variables, formatting, and all.
 
+## What's inside
+
+- **My Prompts** — your personal, fully editable prompts with `/shortcuts`
+- **Library** — 50 curated, ready-to-use prompts across 13 categories (read-only baseline)
+
+Browse and search both from the popup and the in-page ⚡ panel. To turn a library prompt into a shortcut: click **＋ Save to My Prompts**, open the popup, edit it, and assign a `/shortcut`. Shortcut detection only runs against My Prompts — the library never interferes with typed shortcuts.
+
 ## Supported sites
 
 | Site | Shortcut injection | Floating panel |

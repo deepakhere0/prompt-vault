@@ -5,9 +5,11 @@
   "description": "Turn saved prompts into typed shortcuts inside AI chat sites.",
   "permissions": [
     "storage",
+    "unlimitedStorage",
     "contextMenus",
     "activeTab",
-    "scripting"
+    "scripting",
+    "tabs"
   ],
   "host_permissions": [
     "https://chatgpt.com/*",

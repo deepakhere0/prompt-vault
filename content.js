@@ -21,6 +21,8 @@
   let pvPanelEl       = null;
   let panelOpen       = false;
   let panelCategory   = 'All';
+  let panelSource     = 'All'; // 'All' | 'Mine' | 'Lib'
+  let panelLibrary    = [];    // cached library for current panel session
   let dragState       = null;
   let activeModal     = null;
 
@@ -456,6 +458,30 @@
       text-align: center; color: #7878a0; font-size: 0.82rem;
       padding: 28px 12px;
     }
+
+    .ph-toprow { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+
+    .spill {
+      padding:2px 7px; border-radius:99px; font-size:0.62rem;
+      background:transparent; border:1px solid #2e2e3a; color:#7878a0;
+      cursor:pointer; transition:all 120ms; font-family:inherit; white-space:nowrap;
+    }
+    .spill:hover { border-color:#3a7a67; color:#e8e8f0; }
+    .spill.active { background:#1a3a31; border-color:#7cf7d4; color:#7cf7d4; }
+    .source-row { display:flex; gap:4px; }
+
+    .lib-tag {
+      display:inline-block; background:#1a3a31; color:#7cf7d4;
+      border-radius:3px; font-size:0.58rem; padding:0 4px;
+      margin-left:4px; font-family:monospace; flex-shrink:0;
+    }
+    .item-save {
+      background:transparent; border:1px solid transparent; border-radius:5px;
+      padding:3px 6px; color:#7cf7d4; cursor:pointer; font-size:0.85rem;
+      flex-shrink:0; transition:all 120ms; line-height:1;
+    }
+    .item-save:hover { border-color:#7cf7d4; background:#1a3a31; }
+    .panel-overflow { text-align:center; color:#7878a0; font-size:0.7rem; padding:6px 12px; }
   `;
 
   function escHtml(s) {
@@ -502,7 +528,10 @@
     pvPanelEl.id = 'pv-panel';
     pvPanelEl.innerHTML = `
       <div class="ph">
-        <div class="ph-title">⚡ Prompt Vault</div>
+        <div class="ph-toprow">
+          <div class="ph-title">⚡ Prompt Vault</div>
+          <div class="source-row" id="pv-source"></div>
+        </div>
         <input class="search" id="pv-search" type="search" placeholder="Search prompts…" autocomplete="off" spellcheck="false" />
       </div>
       <div class="chips" id="pv-chips"></div>
@@ -598,6 +627,7 @@
   async function openPanel() {
     panelOpen = true;
     panelCategory = 'All';
+    panelSource   = 'All';
     pvPanelEl.classList.remove('hidden');
     repositionPanel();
     pvShadow.getElementById('pv-search').value = '';
@@ -619,66 +649,136 @@
   // ── Panel rendering ───────────────────────────────────────────────────────
 
   async function renderPanelContents() {
-    const prompts = await Storage.getAll();
-    renderChips(prompts);
-    renderItems(prompts);
+    const [personal, library] = await Promise.all([
+      Storage.getAll(),
+      Storage.getLibrary(),
+    ]);
+    panelLibrary = library;
+    renderSourcePills(personal.length, library.length);
+    renderChips([...personal, ...library]);
+    renderItems(personal, library);
   }
 
-  function renderChips(prompts) {
+  function renderSourcePills(mineCount, libCount) {
+    const el = pvShadow.getElementById('pv-source');
+    if (!el) return;
+    const sources = [
+      { key: 'All',  label: 'All'     },
+      { key: 'Mine', label: 'Mine'    },
+      { key: 'Lib',  label: 'Library' },
+    ];
+    el.innerHTML = '';
+    for (const s of sources) {
+      const btn = document.createElement('button');
+      btn.className = 'spill' + (s.key === panelSource ? ' active' : '');
+      btn.textContent = s.label;
+      btn.addEventListener('click', () => { panelSource = s.key; renderPanelContents(); });
+      el.appendChild(btn);
+    }
+  }
+
+  function renderChips(allItems) {
     const el   = pvShadow.getElementById('pv-chips');
-    const cats = ['All', ...new Set(prompts.map((p) => p.category).filter(Boolean))];
+    const pool = allItems.filter(p =>
+      panelSource === 'All' ||
+      (panelSource === 'Mine' && !p.id.startsWith('lib-')) ||
+      (panelSource === 'Lib'  &&  p.id.startsWith('lib-'))
+    );
+    const cats = ['All', ...new Set(pool.map((p) => p.category).filter(Boolean))];
+    if (panelCategory !== 'All' && !cats.includes(panelCategory)) panelCategory = 'All';
     el.innerHTML = '';
     for (const cat of cats) {
       const btn = document.createElement('button');
       btn.className = 'chip' + (cat === panelCategory ? ' active' : '');
       btn.textContent = cat;
-      btn.addEventListener('click', () => {
-        panelCategory = cat;
-        renderPanelContents();
-      });
+      btn.addEventListener('click', () => { panelCategory = cat; renderPanelContents(); });
       el.appendChild(btn);
     }
   }
 
   async function refreshList() {
-    const prompts = await Storage.getAll();
-    renderItems(prompts);
+    const [personal, library] = await Promise.all([Storage.getAll(), Storage.getLibrary()]);
+    panelLibrary = library;
+    renderItems(personal, library);
   }
 
-  function renderItems(prompts) {
+  function renderItems(personal, library) {
     const listEl = pvShadow.getElementById('pv-list');
     const q      = (pvShadow.getElementById('pv-search').value || '').toLowerCase().trim();
 
-    const filtered = prompts.filter((p) => {
-      const matchCat = panelCategory === 'All' || p.category === panelCategory;
-      const matchQ   = !q ||
-        p.title.toLowerCase().includes(q) ||
-        (p.shortcut || '').toLowerCase().includes(q) ||
-        p.body.toLowerCase().includes(q);
-      return matchCat && matchQ;
+    // Build combined tagged list respecting source filter
+    let items = [];
+    if (panelSource === 'All' || panelSource === 'Mine')
+      items = items.concat(personal.map(p => ({ ...p, _lib: false })));
+    if (panelSource === 'All' || panelSource === 'Lib')
+      items = items.concat(library.map(p => ({ ...p, _lib: true })));
+
+    const results = items.filter(p => {
+      if (panelCategory !== 'All' && p.category !== panelCategory) return false;
+      if (!q) return true;
+      return p.title.toLowerCase().includes(q) ||
+             (p.shortcut || '').toLowerCase().includes(q) ||
+             p.body.toLowerCase().includes(q);
     });
 
     listEl.innerHTML = '';
 
-    if (filtered.length === 0) {
+    if (results.length === 0) {
       listEl.innerHTML = `<div class="empty">No prompts found.</div>`;
       return;
     }
 
-    for (const p of filtered) {
+    const CAP = 20;
+    for (const p of results.slice(0, CAP)) {
       const item = document.createElement('div');
       item.className = 'item';
-      item.innerHTML = `
-        <div class="item-body">
-          <div class="item-title">${escHtml(p.title)}</div>
-          <div class="item-meta">
-            ${p.shortcut ? `<span class="sc">${escHtml(p.shortcut)}</span>` : ''}
-            ${p.category ? `<span class="cat">${escHtml(p.category)}</span>` : ''}
-          </div>
+
+      const bodyDiv = document.createElement('div');
+      bodyDiv.className = 'item-body';
+      bodyDiv.innerHTML = `
+        <div class="item-title">${escHtml(p.title)}${p._lib ? '<span class="lib-tag">Lib</span>' : ''}</div>
+        <div class="item-meta">
+          ${p.shortcut ? `<span class="sc">${escHtml(p.shortcut)}</span>` : ''}
+          ${p.category ? `<span class="cat">${escHtml(p.category)}</span>` : ''}
         </div>`;
-      item.addEventListener('click', () => onItemClick(p));
+      bodyDiv.addEventListener('click', () => onItemClick(p));
+
+      item.appendChild(bodyDiv);
+
+      if (p._lib) {
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'item-save';
+        saveBtn.title = 'Save to My Prompts';
+        saveBtn.textContent = '＋';
+        saveBtn.addEventListener('click', (e) => { e.stopPropagation(); saveLibFromPanel(p); });
+        item.appendChild(saveBtn);
+      }
+
       listEl.appendChild(item);
     }
+
+    if (results.length > CAP) {
+      const more = document.createElement('div');
+      more.className = 'panel-overflow';
+      more.textContent = `${results.length - CAP} more — refine your search`;
+      listEl.appendChild(more);
+    }
+  }
+
+  async function saveLibFromPanel(libPrompt) {
+    const existing = await Storage.getAll();
+    if (existing.some(p => p.title.toLowerCase() === libPrompt.title.toLowerCase())) {
+      showPvToast('Already in My Prompts.', 'warn'); return;
+    }
+    await Storage.add({
+      id:        Storage.makeId(),
+      title:     libPrompt.title,
+      shortcut:  '',
+      category:  libPrompt.category,
+      body:      libPrompt.body,
+      createdAt: Date.now(),
+    });
+    showPvToast(`Saved "${libPrompt.title}".`);
   }
 
   // ── Panel insert ──────────────────────────────────────────────────────────
@@ -805,6 +905,24 @@
       if (r['__pv_autosend']) autoSendInput(el);
     });
   }
+
+  // ── Message listener (popup-initiated insert) ─────────────────────────────
+  // The popup sends PV_INSERT when the user clicks "↩ Insert" on a prompt card.
+  // We do the actual injection here so we can reuse replaceAllContent + variable modal.
+  chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+    if (msg.type !== 'PV_INSERT') return false;
+    const el = lastActiveInput || findChatInput();
+    if (!el) { sendResponse({ ok: false }); return false; }
+    el.focus();
+    const vars = extractVariables(msg.body);
+    if (vars.length > 0) {
+      showVariableModal(el, null, msg.body, vars, (t) => insertAtCaret(el, t));
+    } else {
+      insertAtCaret(el, msg.body);
+    }
+    sendResponse({ ok: true });
+    return false;
+  });
 
   // ── SPA resilience ────────────────────────────────────────────────────────
 

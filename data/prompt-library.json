@@ -1,0 +1,402 @@
+[
+  {
+    "id": "lib-0001",
+    "title": "Long-form article architect",
+    "shortcut": "",
+    "category": "Writing & Content",
+    "body": "You are a senior editor and subject-matter expert in [Topic]. Write a comprehensive [Word count]-word article titled around \"[Working title]\".\nAudience: [Audience]. Tone: [Tone].\nRequirements:\n- Open with a hook that states the stakes in 2 sentences, then a one-line TL;DR.\n- Use clear H2/H3 structure; each section delivers one concrete idea with a real example or mini-case.\n- Include at least one counter-argument and address it honestly.\n- End with a specific, actionable takeaway, not a generic summary.\nAvoid filler, clichés, and hedging. Prefer concrete nouns and verbs over adjectives.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0002",
+    "title": "Rewrite for clarity and impact",
+    "shortcut": "",
+    "category": "Writing & Content",
+    "body": "Act as a ruthless line editor. Rewrite the text below to be clearer, tighter, and more compelling without changing its meaning or my voice.\nRules: cut redundancy, replace vague words with precise ones, prefer active voice, break long sentences, keep technical accuracy.\nAfter the rewrite, list the 3 most important changes you made and why.\nText:\n\"\"\"\n[Paste text]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0003",
+    "title": "Story / narrative developer",
+    "shortcut": "",
+    "category": "Writing & Content",
+    "body": "You are a developmental fiction editor. I will give you a premise; help me develop it.\nPremise: [Premise]. Genre: [Genre]. Length goal: [Length].\nDeliver: (1) a one-line logline, (2) the protagonist's external goal and internal flaw, (3) the central conflict and stakes, (4) a 5-beat structure (setup, inciting incident, midpoint shift, crisis, resolution), (5) one unexpected twist that recontextualizes an earlier beat.\nKeep it specific to my premise, not generic story theory.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0004",
+    "title": "Newsletter issue from raw notes",
+    "shortcut": "",
+    "category": "Writing & Content",
+    "body": "You are an experienced newsletter writer. Turn my rough notes into a publish-ready issue for [Audience].\nVoice: [Tone]. Target length: [Length].\nStructure: a magnetic subject line + preview text, a 2-sentence personal opener, the main piece with clear sections, and one clear call-to-action.\nKeep paragraphs short and scannable. End by suggesting 2 alternative subject lines.\nNotes:\n\"\"\"\n[Paste notes]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0005",
+    "title": "Plain-language explainer",
+    "shortcut": "",
+    "category": "Writing & Content",
+    "body": "Explain [Concept] to [Audience] who has no background in it.\nUse one strong everyday analogy, define any unavoidable jargon inline, and progress from \"what it is\" to \"why it matters\" to \"how it's used\".\nKeep it under [Length]. End with a one-sentence summary a reader could repeat to someone else.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0006",
+    "title": "Full go-to-market brief",
+    "shortcut": "",
+    "category": "Marketing & Growth",
+    "body": "You are a head of growth. Build a go-to-market brief for [Product] targeting [Target market].\nCover: ideal customer profile, the core problem and our unique value proposition, top 3 acquisition channels (with why), key messaging pillars, a 30-60-90 day launch sequence, and the 3 metrics that prove it's working.\nBe specific and prioritized — call out what NOT to do first. Format with clear headers.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0007",
+    "title": "Landing page copy (conversion-focused)",
+    "shortcut": "",
+    "category": "Marketing & Growth",
+    "body": "Act as a conversion copywriter. Write landing page copy for [Product] aimed at [Audience].\nDeliver: hero headline (5 variants) + subhead, 3 benefit-driven sections (benefit > feature framing), social-proof placeholder, objection-handling FAQ (5 Qs), and a primary CTA + 2 alternates.\nLead with the customer's problem and desired outcome, not our features. Keep it punchy and specific.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0008",
+    "title": "Ad campaign concepts",
+    "shortcut": "",
+    "category": "Marketing & Growth",
+    "body": "You are a creative director. Generate 5 distinct ad concepts for [Product] on [Platform], targeting [Audience].\nFor each: the big idea in one line, the hook (first 3 seconds / first line), the core message, the visual direction, and the CTA.\nMake the 5 genuinely different angles (e.g. fear-of-missing-out, transformation, contrarian, social proof, utility) — not 5 variations of one idea.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0009",
+    "title": "Positioning & messaging map",
+    "shortcut": "",
+    "category": "Marketing & Growth",
+    "body": "Act as a product marketing strategist. Build a positioning statement and messaging map for [Product].\nOutput: (1) positioning statement (for [target] who [need], [product] is a [category] that [benefit], unlike [alternative]), (2) 3 messaging pillars each with a one-line claim and 2 proof points, (3) the single sharpest differentiator, (4) words to avoid because competitors own them.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0010",
+    "title": "Content calendar with angles",
+    "shortcut": "",
+    "category": "Marketing & Growth",
+    "body": "You are a content strategist. Plan a [Timeframe] content calendar for [Brand/Topic] on [Channel].\nFor each piece give: title/hook, the audience pain it addresses, the format, the funnel stage (awareness/consideration/decision), and the CTA.\nBalance the mix across funnel stages and avoid repeating the same angle. Present as a table.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0011",
+    "title": "Cold email (PAS framework)",
+    "shortcut": "",
+    "category": "Sales & Outreach",
+    "body": "Write a cold outreach email using Problem-Agitate-Solution.\nRecipient: [Recipient role] at [Company type]. My offer: [What I offer]. Their likely problem: [Problem].\nConstraints: subject under 6 words and curiosity-driven; body under 120 words; one specific, low-friction CTA; conversational and human — no \"I hope this finds you well\", no buzzwords.\nThen give 2 alternate subject lines and a 1-line follow-up to send if no reply.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0012",
+    "title": "Discovery call question bank",
+    "shortcut": "",
+    "category": "Sales & Outreach",
+    "body": "You are a top enterprise sales rep. Build a discovery-call question set to qualify [Prospect type] for [Product].\nOrganize by: current situation, pain and its cost, decision process and stakeholders, budget/timing, and success criteria.\nMake questions open-ended and non-leading. Flag the 3 must-ask questions that most predict a real opportunity.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0013",
+    "title": "Objection handling playbook",
+    "shortcut": "",
+    "category": "Sales & Outreach",
+    "body": "Act as a sales coach. For [Product] sold to [Audience], build an objection-handling playbook for the 6 most common objections (price, timing, \"we already use X\", trust, internal buy-in, status quo).\nFor each: the real concern underneath it, a calm reframe, a proof point, and a question that moves the conversation forward. No pushy tactics.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0014",
+    "title": "Proposal / quote draft",
+    "shortcut": "",
+    "category": "Sales & Outreach",
+    "body": "You are a solutions consultant. Draft a clear proposal for [Client] for [Scope of work].\nSections: understanding of their goal, proposed approach, deliverables, timeline, pricing options (good/better/best), assumptions, and next step.\nLead with their outcome, keep it skimmable, and make the recommended option obvious without being pushy.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0015",
+    "title": "SEO content brief",
+    "shortcut": "",
+    "category": "SEO",
+    "body": "You are an SEO content strategist. Create a content brief for the target keyword \"[Keyword]\".\nInclude: search intent, a compelling H1, a full H2/H3 outline mapped to subtopics, 8 related/long-tail keywords to include, recommended word count based on intent, internal-link ideas, a meta title (<60 chars) and meta description (<155 chars), and the key question the page must answer in the first 100 words.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0016",
+    "title": "Keyword cluster planner",
+    "shortcut": "",
+    "category": "SEO",
+    "body": "Act as an SEO strategist. For the topic [Topic / niche], propose a topic cluster: one pillar page plus 8-12 supporting articles.\nFor each item give the working title, target keyword, search intent, and how it links back to the pillar. Note which 3 to publish first for fastest traction and why. Present as a table.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0017",
+    "title": "Rewrite page to match intent",
+    "shortcut": "",
+    "category": "SEO",
+    "body": "You are an SEO editor. Here is a page targeting \"[Keyword]\". Diagnose why it may be underperforming for that query and rewrite the intro + outline to better match search intent.\nBe specific about intent mismatch, missing subtopics, and weak structure.\nCurrent content:\n\"\"\"\n[Paste content]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0018",
+    "title": "Senior code review",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "Act as a staff engineer doing a thorough code review. Review the code below for correctness, edge cases, security, performance, readability, and maintainability.\nOutput: (1) a 1-line overall verdict, (2) issues ranked by severity with the specific line/reason and a suggested fix, (3) what's already good. Be direct; don't invent problems.\nLanguage/stack: [Stack].\nCode:\n\"\"\"\n[Paste code]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0019",
+    "title": "Debug with root cause",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "You are a senior engineer. I'll give code and an error. Do this in order:\n1) State the single most likely root cause in one sentence.\n2) Give the corrected code.\n3) Explain briefly what changed and why, and how to prevent it recurring.\nDon't lecture. Stack: [Stack].\nCode + error:\n\"\"\"\n[Paste code and error]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0020",
+    "title": "Explain unfamiliar code",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "Act as a patient senior engineer. Explain the code below to someone who knows [Language] but not this codebase.\nCover: what it does at a high level, a step-by-step walkthrough of the non-obvious parts, any side effects or gotchas, and one suggestion to make it clearer.\nCode:\n\"\"\"\n[Paste code]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0021",
+    "title": "Design a system / architecture",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "You are a principal architect. Propose an architecture for [System/feature] with requirements: [Requirements].\nCover: high-level components and how they interact, data model sketch, key API surface, the main trade-offs and why you chose this approach, failure modes and how to handle them, and what you'd build first (MVP) vs. later.\nCall out the riskiest assumption explicitly.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0022",
+    "title": "Write tests for this code",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "Act as a test engineer. Write a focused test suite for the code below using [Test framework].\nCover: happy path, boundary/edge cases, invalid input, and any error handling. Name tests descriptively. Note any case that's hard to test and why.\nCode:\n\"\"\"\n[Paste code]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0023",
+    "title": "Refactor for readability",
+    "shortcut": "",
+    "category": "Coding & Engineering",
+    "body": "You are a senior engineer who values clean code. Refactor the code below for readability and maintainability without changing behavior.\nImprove naming, reduce nesting, extract functions where it helps, and remove duplication. Keep the public interface stable.\nAfter, summarize the key changes in 3 bullets. Stack: [Stack].\nCode:\n\"\"\"\n[Paste code]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0024",
+    "title": "Analyze a dataset",
+    "shortcut": "",
+    "category": "Data & Analysis",
+    "body": "Act as a data analyst. I'll describe or paste data about [Subject]. \nDo: (1) restate what the data represents and its limits, (2) compute/estimate the key summary stats, (3) surface the 3 most important insights with the numbers that support them, (4) note 2 things the data does NOT tell us, (5) recommend the single best next analysis.\nAvoid overclaiming causation from correlation.\nData:\n\"\"\"\n[Paste data]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0025",
+    "title": "Turn a question into metrics",
+    "shortcut": "",
+    "category": "Data & Analysis",
+    "body": "You are an analytics lead. I want to measure [Goal]. \nDefine: the 1 north-star metric, 3-5 supporting metrics, 2 guardrail metrics (things that shouldn't get worse), how each is calculated, and the most likely way each could be gamed or misread.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0026",
+    "title": "Explain a statistical concept in context",
+    "shortcut": "",
+    "category": "Data & Analysis",
+    "body": "Explain [Statistical concept] in the context of [Use case], for someone who is smart but not a statistician.\nUse a concrete example with real-ish numbers, state when it applies and when it misleads, and give one common mistake people make with it.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0027",
+    "title": "PRD from a rough idea",
+    "shortcut": "",
+    "category": "Product & Strategy",
+    "body": "You are a senior product manager. Turn this idea into a concise PRD: [Idea].\nSections: problem & who has it, goal and success metric, user stories (prioritized), scope (in / explicitly out for v1), key risks and open questions, and a phased rollout. \nBe ruthless about what's out of scope for v1.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0028",
+    "title": "Prioritize a backlog (RICE)",
+    "shortcut": "",
+    "category": "Product & Strategy",
+    "body": "Act as a product lead. Score and rank the following items using RICE (Reach, Impact, Confidence, Effort). \nFor each item, give the four scores with a one-line justification, the RICE score, and the final ranking. Then state which 3 you'd commit to next quarter and what you'd cut.\nItems:\n\"\"\"\n[Paste items]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0029",
+    "title": "Competitive teardown",
+    "shortcut": "",
+    "category": "Product & Strategy",
+    "body": "You are a product strategist. Compare [Our product] against [Competitors] for [Target user].\nBuild a feature/positioning comparison table, identify each competitor's core wedge, find the 2 gaps we could own, and name the one thing we should NOT try to compete on. Be honest about where they're stronger.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0030",
+    "title": "Pre-mortem on a plan",
+    "shortcut": "",
+    "category": "Product & Strategy",
+    "body": "Act as a skeptical advisor. Run a pre-mortem on this plan: [Plan]. \nImagine it's 6 months later and it failed. List the 6 most plausible reasons it failed, ranked by likelihood, each with an early warning sign to watch for and one mitigation. Be specific to this plan, not generic risks.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0031",
+    "title": "Tailor resume to a job",
+    "shortcut": "",
+    "category": "Career & Job Search",
+    "body": "You are an expert technical recruiter. Tailor my resume to this job description.\nIdentify the 6-8 things this role most wants, map my experience to them, rewrite my bullet points to be results-first (action + metric + impact), and flag gaps I should address. Keep it truthful — no fabrication.\nJob description:\n\"\"\"\n[Paste JD]\n\"\"\"\nMy resume:\n\"\"\"\n[Paste resume]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0032",
+    "title": "Mock interview + feedback",
+    "shortcut": "",
+    "category": "Career & Job Search",
+    "body": "Act as a hiring manager for a [Role] role. Conduct a realistic interview one question at a time, wait for my answer, then give brief feedback (what was strong, what to improve) before the next question.\nMix behavioral and role-specific questions, increasing in difficulty. Start now with the first question.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0033",
+    "title": "Cover letter that isn't generic",
+    "shortcut": "",
+    "category": "Career & Job Search",
+    "body": "You are a career coach. Write a cover letter for [Role] at [Company] using my background below.\nOpen with a specific reason I'm drawn to THIS company (not flattery), connect 2-3 of my achievements to their needs, and close with confident enthusiasm. Under [Length]. No clichés like \"I am writing to apply\".\nBackground:\n\"\"\"\n[Paste background]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0034",
+    "title": "Negotiate an offer",
+    "shortcut": "",
+    "category": "Career & Job Search",
+    "body": "Act as a compensation negotiation coach. I received an offer: [Offer details]. My situation: [Context].\nGive: a realistic assessment of leverage, the specific numbers/terms worth negotiating, exact phrasing for the ask (email + verbal), how to respond to likely pushback, and the walk-away vs. accept signals. Keep it collaborative, not adversarial.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0035",
+    "title": "Learning roadmap for a skill",
+    "shortcut": "",
+    "category": "Learning & Research",
+    "body": "You are an expert tutor in [Skill]. Build a structured learning roadmap to take me from [Current level] to [Goal level] in [Timeframe].\nBreak into phases with concrete milestones, the key concepts per phase, one project to prove each phase, common pitfalls, and how I'll know I've actually learned it. Recommend depth over breadth.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0036",
+    "title": "Socratic tutor",
+    "shortcut": "",
+    "category": "Learning & Research",
+    "body": "Be my Socratic tutor for [Topic]. Don't give me answers directly. Ask one focused question at a time to lead me to understanding, adapt to my replies, and correct misconceptions gently when they appear. Start by gauging what I already know with a single question.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0037",
+    "title": "Summarize and stress-test an argument",
+    "shortcut": "",
+    "category": "Learning & Research",
+    "body": "Act as a critical reader. For the text below: (1) summarize the core claim and main supporting points in plain language, (2) identify the key assumptions, (3) give the strongest objection to it, (4) note what evidence would change the conclusion. Be fair to the argument before critiquing it.\nText:\n\"\"\"\n[Paste text]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0038",
+    "title": "Research plan for a question",
+    "shortcut": "",
+    "category": "Learning & Research",
+    "body": "You are a research advisor. I want to investigate: [Question].\nProduce: a sharper version of the question, the sub-questions it breaks into, the types of sources that would answer each, likely biases or pitfalls in those sources, and a step-by-step plan to reach a defensible conclusion.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0039",
+    "title": "Decision framework",
+    "shortcut": "",
+    "category": "Productivity & Thinking",
+    "body": "Act as a clear-headed decision advisor. Help me decide: [Decision].\nWalk through: what I'm really optimizing for, the realistic options (including ones I haven't named), the key trade-offs of each, the reversible-vs-irreversible nature of the choice, and a recommendation with the main reason. End with the one piece of information that would most change the answer.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0040",
+    "title": "Break a big goal into a plan",
+    "shortcut": "",
+    "category": "Productivity & Thinking",
+    "body": "You are an execution coach. Turn this goal into an actionable plan: [Goal] by [Deadline].\nOutput: the goal restated as a measurable outcome, the 3-5 milestones in order, the very next concrete action for each, likely obstacles with a workaround, and a weekly check-in metric. Bias toward starting fast.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0041",
+    "title": "Think it through with me (steelman both sides)",
+    "shortcut": "",
+    "category": "Productivity & Thinking",
+    "body": "I'm wrestling with: [Topic/dilemma]. \nSteelman both sides as strongly as a thoughtful proponent of each would, surface the hidden value conflict underneath, and then ask me the 2 questions that would most help me decide. Don't rush to a conclusion.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0042",
+    "title": "Meeting prep / talking points",
+    "shortcut": "",
+    "category": "Productivity & Thinking",
+    "body": "Act as my chief of staff. Prep me for a meeting about [Topic] with [Who].\nGive: my single objective, 3 key talking points with supporting facts, the 3 hardest questions they might ask and crisp answers, one concession I can offer, and the specific outcome I should push for by the end.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0043",
+    "title": "Business model breakdown",
+    "shortcut": "",
+    "category": "Business & Finance",
+    "body": "You are a startup advisor. Analyze the business model for [Business/idea].\nCover: how it makes money, unit economics (the levers, even if estimated), the riskiest assumption, what has to be true for it to work at scale, and 2 alternative monetization angles. Note that this is analysis, not financial advice.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0044",
+    "title": "Pricing strategy options",
+    "shortcut": "",
+    "category": "Business & Finance",
+    "body": "Act as a pricing strategist. Recommend a pricing approach for [Product] sold to [Audience].\nCompare 2-3 models (e.g. flat, tiered, usage-based, freemium) with the pros/cons of each for this case, suggest specific tiers and price anchors, and flag the main risk of the recommended model. This is strategy, not financial advice.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0045",
+    "title": "Explain a financial concept",
+    "shortcut": "",
+    "category": "Business & Finance",
+    "body": "Explain [Financial concept] clearly for [Audience], with a concrete worked example using simple numbers.\nCover what it is, why it matters, and one common misunderstanding. Note this is educational and not personalized financial advice.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0046",
+    "title": "Draft a difficult message",
+    "shortcut": "",
+    "category": "Communication & Email",
+    "body": "You are a communication coach. Help me write a message to [Recipient] about [Situation]. My goal: [Goal]. \nGive me 2 versions with different strategies (e.g. direct vs. diplomatic), note what each prioritizes and trades off, and keep both honest and respectful. Channel: [Email/Slack/Text].",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0047",
+    "title": "Summarize a thread into next steps",
+    "shortcut": "",
+    "category": "Communication & Email",
+    "body": "Act as an executive assistant. Read the thread/notes below and produce: a 3-sentence summary, the decisions made, open questions, and a clear owner + action + due date for each next step. Flag anything that seems unresolved.\nContent:\n\"\"\"\n[Paste thread]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0048",
+    "title": "Give feedback that lands",
+    "shortcut": "",
+    "category": "Communication & Email",
+    "body": "You are a manager known for great feedback. Help me give feedback to [Person/role] about [Situation].\nUse the SBI structure (Situation, Behavior, Impact), keep it specific and non-judgmental, separate observation from interpretation, and end with a forward-looking ask. Give me the actual wording.",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0049",
+    "title": "UX critique of a flow",
+    "shortcut": "",
+    "category": "Design & UX",
+    "body": "Act as a senior UX designer. Critique the user flow I describe for [Product/feature].\nEvaluate: clarity of the primary action, friction points, cognitive load, error prevention, and accessibility. Rank issues by impact, suggest a concrete fix for each, and note what's working. \nFlow:\n\"\"\"\n[Describe flow]\n\"\"\"",
+    "createdAt": 1780623324646
+  },
+  {
+    "id": "lib-0050",
+    "title": "Microcopy / UX writing",
+    "shortcut": "",
+    "category": "Design & UX",
+    "body": "You are a UX writer. Write microcopy for [Screen/element] in [Product].\nProvide options for: the primary label/CTA, helper text, empty state, and one error message. Keep it clear, human, and concise; match a [Tone] voice. Explain the reasoning for the primary choice in one line.",
+    "createdAt": 1780623324646
+  }
+]

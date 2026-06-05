@@ -1,5 +1,7 @@
 // background.js — service worker
-// Handles: first-install seed, context-menu "Save selection", badge feedback.
+// Handles: first-install seed, library seed, context-menu "Save selection", badge feedback.
+
+const LIBRARY_VERSION = 1; // bump when prompt-library.json is updated
 
 const SEED_PROMPTS = [
   {
@@ -52,6 +54,9 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
   }
 
+  // Seed (or upgrade) the bundled library on install and on every version bump.
+  await seedLibrary();
+
   // removeAll first so extension updates don't throw a duplicate-ID error.
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
@@ -99,6 +104,22 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   chrome.action.setBadgeBackgroundColor({ color: '#3a7a67' }); // dark enough for Chrome's white badge text
   setTimeout(() => chrome.action.setBadgeText({ text: '' }), 1800);
 });
+
+// Load bundled prompt library into __pv_library if missing or a newer version is available.
+// Never touches the user's `prompts` key.
+async function seedLibrary() {
+  const stored = (await storageGet('__pv_library_version')) || 0;
+  if (stored >= LIBRARY_VERSION) return;
+  try {
+    const res  = await fetch(chrome.runtime.getURL('data/prompt-library.json'));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    await storageSet('__pv_library', data);
+    await storageSet('__pv_library_version', LIBRARY_VERSION);
+  } catch (e) {
+    console.error('Prompt Vault: library seed failed —', e.message);
+  }
+}
 
 // Minimal storage helpers for the service worker (can't share lib/storage.js module directly).
 function storageGet(key) {

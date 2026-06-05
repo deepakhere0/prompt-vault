@@ -82,11 +82,17 @@ body {
 #search:focus { border-color: var(--accent-dim); }
 #search::placeholder { color: var(--text-muted); }
 
+.source-chips {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
 .category-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .chip {
@@ -186,6 +192,30 @@ body {
   transition: opacity var(--trans);
 }
 .prompt-card:hover .card-actions { opacity: 1; }
+
+/* Library cards — subtle tint to distinguish from personal */
+.library-card { border-color: rgba(60, 122, 103, 0.2); }
+.library-card:hover { border-color: var(--accent-dim); }
+
+.lib-badge {
+  background: rgba(60, 122, 103, 0.18);
+  color: var(--accent);
+  border-radius: 4px;
+  font-size: 0.6rem;
+  font-family: monospace;
+  padding: 1px 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Save-to-Mine button (the ＋ icon on library cards) */
+.save-btn { color: var(--accent); }
+.save-btn:hover { border-color: var(--accent-dim) !important; color: var(--accent) !important; }
+
+/* Load-more row */
+.load-more-row { padding: 4px 0 2px; text-align: center; }
+.load-more-btn  { width: 100%; font-size: 0.76rem; padding: 6px 14px; }
 
 /* ── Buttons ── */
 .btn-primary {
