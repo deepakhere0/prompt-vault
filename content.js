@@ -834,19 +834,21 @@
   }
 
   async function saveLibFromPanel(libPrompt) {
-    const existing = await Storage.getAll();
-    if (existing.some(p => p.title.toLowerCase() === libPrompt.title.toLowerCase())) {
-      showPvToast('Already in My Prompts.', 'warn'); return;
-    }
-    await Storage.add({
-      id:        Storage.makeId(),
-      title:     libPrompt.title,
-      shortcut:  '',
-      category:  libPrompt.category,
-      body:      libPrompt.body,
-      createdAt: Date.now(),
-    });
-    showPvToast(`Saved "${libPrompt.title}".`);
+    try {
+      const existing = await Storage.getAll();
+      if (existing.some(p => p.title.toLowerCase() === libPrompt.title.toLowerCase())) {
+        showPvToast('Already in My Prompts.', 'warn'); return;
+      }
+      await Storage.add({
+        id:        Storage.makeId(),
+        title:     libPrompt.title,
+        shortcut:  '',
+        category:  libPrompt.category,
+        body:      libPrompt.body,
+        createdAt: Date.now(),
+      });
+      showPvToast(`Saved "${libPrompt.title}".`);
+    } catch { showPvToast('Reload the page — extension was updated.', 'warn'); }
   }
 
   // ── Panel insert ──────────────────────────────────────────────────────────
@@ -877,14 +879,16 @@
 
   function getSavedBtnYPct() {
     return new Promise((resolve) => {
-      chrome.storage.local.get([BTN_Y_STORE_KEY], (r) => {
-        resolve(typeof r[BTN_Y_STORE_KEY] === 'number' ? r[BTN_Y_STORE_KEY] : DEFAULT_Y_PCT);
-      });
+      try {
+        chrome.storage.local.get([BTN_Y_STORE_KEY], (r) => {
+          resolve(typeof r[BTN_Y_STORE_KEY] === 'number' ? r[BTN_Y_STORE_KEY] : DEFAULT_Y_PCT);
+        });
+      } catch { resolve(DEFAULT_Y_PCT); }
     });
   }
 
   function saveBtnYPct(pct) {
-    chrome.storage.local.set({ [BTN_Y_STORE_KEY]: pct });
+    try { chrome.storage.local.set({ [BTN_Y_STORE_KEY]: pct }); } catch {}
   }
 
   // ── Prompt Optimizer ─────────────────────────────────────────────────────
@@ -955,16 +959,19 @@
   // ── Optimizer helpers ─────────────────────────────────────────────────────
 
   function loadOptimizerSettings() {
+    const defaults = { enabled: true, level: 'standard', mode: 'auto', customInstructions: '' };
     return new Promise(resolve => {
-      chrome.storage.local.get(
-        ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'],
-        r => resolve({
-          enabled:            r['__pv_optimizer_on'] !== false,
-          level:              r['__pv_opt_level']  || 'standard',
-          mode:               r['__pv_opt_mode']   || 'auto',
-          customInstructions: r['__pv_opt_custom'] || '',
-        })
-      );
+      try {
+        chrome.storage.local.get(
+          ['__pv_optimizer_on','__pv_opt_level','__pv_opt_mode','__pv_opt_custom'],
+          r => resolve({
+            enabled:            r['__pv_optimizer_on'] !== false,
+            level:              r['__pv_opt_level']  || 'standard',
+            mode:               r['__pv_opt_mode']   || 'auto',
+            customInstructions: r['__pv_opt_custom'] || '',
+          })
+        );
+      } catch { resolve(defaults); }  // extension context invalidated — use safe defaults
     });
   }
 
@@ -1026,6 +1033,10 @@
   }
 
   async function onOptimizeClick() {
+    try { if (!chrome.runtime?.id) throw new Error('invalidated'); } catch {
+      showPvToast('Reload the page — extension was updated.', 'warn'); return;
+    }
+
     const el = lastActiveInput || findChatInput();
     if (!el) { showPvToast('Click the chat input first.', 'warn'); return; }
 
@@ -1053,9 +1064,11 @@
 
     replaceAllContent(el, payload);
 
-    chrome.storage.local.get(['__pv_autosend'], r => {
-      if (r['__pv_autosend']) autoSendInput(el);
-    });
+    try {
+      chrome.storage.local.get(['__pv_autosend'], r => {
+        if (r['__pv_autosend']) autoSendInput(el);
+      });
+    } catch {}
   }
 
   // ── Message listener (popup-initiated insert) ─────────────────────────────
