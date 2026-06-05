@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Vault</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <span class="logo">⚡ Prompt Vault</span>
+      <button class="btn-primary" id="btn-add">+ New Prompt</button>
+    </header>
+
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search prompts…" autocomplete="off" />
+      <div class="category-chips" id="category-chips">
+        <!-- Chips rendered by popup.js -->
+      </div>
+    </div>
+
+    <div class="prompt-list" id="prompt-list">
+      <!-- Prompt cards rendered by popup.js -->
+    </div>
+
+    <div class="settings-bar">
+      <label class="setting-row" title="Automatically send the chat after optimizing">
+        <span>Auto-send after Optimize ✨</span>
+        <input type="checkbox" id="opt-autosend" class="toggle" />
+      </label>
+    </div>
+
+    <div class="footer-bar">
+      <button class="btn-ghost" id="btn-import">Import JSON</button>
+      <button class="btn-ghost" id="btn-export">Export JSON</button>
+    </div>
+  </div>
+
+  <!-- Edit / Add modal -->
+  <div class="modal-overlay hidden" id="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal">
+      <h2 id="modal-title">New Prompt</h2>
+      <label>Title <input type="text" id="f-title" placeholder="e.g. SEO Outline" /></label>
+      <label>Shortcut <input type="text" id="f-shortcut" placeholder="/keyword" /></label>
+      <label>Category <input type="text" id="f-category" placeholder="e.g. Marketing" list="category-list" /></label>
+      <datalist id="category-list"></datalist>
+      <label>Body
+        <textarea id="f-body" rows="6" placeholder="Your prompt text. Use [Variable] for fill-in blanks."></textarea>
+      </label>
+      <p class="modal-error hidden" id="modal-error"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="modal-cancel">Cancel</button>
+        <button class="btn-primary" id="modal-save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden file input for import -->
+  <input type="file" id="import-file" accept=".json" style="display:none" />
+
+  <script src="lib/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
